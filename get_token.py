@@ -27,12 +27,14 @@ def get_expiry_date():
     return next_expiry
 
 
-# Token of Equity: getTokenValue(token_df, exch_seg="NSE", name="TCS")
+# Token of Equity: get_token_value(token_df, exch_seg="NSE", name="TCS")
+# Token of Index: get_token_value(token_df, name="NIFTY", isIndex=True)
 def get_token_value(df, expiry=get_expiry_date(), CE_PE='', strike_price=0, exch_seg='NFO',
-                    name='BANKNIFTY', instrumenttype='OPTIDX'):
+                    name='BANKNIFTY', instrumenttype='OPTIDX', isIndex=False):
     """
     token_row = getTokenValue(df = token_df, CE_PE = 'CE', expiry = '27JUL2023', strike_price = 46500)
     token = token_row.item()
+    :param isIndex: Pass True if Index token in needed: name = NIFTY or BANKNIFTY
     :param df: dataframe of tradeable items list
     :param CE_PE: whether CE or PE
     :param expiry: expiry of the option
@@ -46,6 +48,9 @@ def get_token_value(df, expiry=get_expiry_date(), CE_PE='', strike_price=0, exch
     if strike_price != 0:
         strike_price = format(strike_price * 100, '.6f')
 
+    if isIndex:
+        token_row = df.loc[(df['name'] == name) & (df['symbol'] == name)]
+        return token_row['token'].squeeze()
     if exch_seg == 'NSE':
         token_row = df.loc[(df['exch_seg'] == exch_seg) & (df['symbol'].str.endswith('EQ')) & (df['name'] == name)]
         return token_row['token'].squeeze()
